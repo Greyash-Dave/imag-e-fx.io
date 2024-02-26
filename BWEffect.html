@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BW Particle Rain</title>
+    <link rel="stylesheet" href="styleBW.css">
+    
+</head>
+<body>
+    <canvas id="canvas1"></canvas>
+
+    <script src="scriptBW.js"></script>
+
+    <button class="toolbar-toggle-button" onclick="toggleToolbar()">&#9776;</button>
+    <div class="toolbar-container" id="toolbarContainer">
+        <input type="text" id="speed" value="3.5" placeholder="Speed">
+        <br><br>
+        <input type="text" id="brightness" value="1" placeholder="Brightness">
+        <br><br>
+        <input type="text" id="size" value="1" placeholder="Size">
+        <br><br>
+        <select id="effects">
+            <option value="0">Effects</option>
+            <option value="1">Horizontal</option>
+            <option value="2">Vertical</option>
+            <option value="3">Diagonal</option>
+        </select><br><br>
+        <input type="submit" value="Submit" onclick="submit()">
+        <br><br>
+        <input type="submit" value="Record" onclick="record()">
+        &nbsp;
+        <input type="submit" value="Save" onclick="save()">
+    </div>
+
+    <script>
+        function toggleToolbar() {
+            var toolbar = document.getElementById('toolbarContainer');
+            var toggleButton = document.querySelector('.toolbar-toggle-button');
+            toolbar.classList.toggle('open');
+            toggleButton.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

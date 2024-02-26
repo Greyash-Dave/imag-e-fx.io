@@ -1,0 +1,49 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: black;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Add hover effect to input elements */
+.toolbar-container input[type="file"]:hover,
+.toolbar-container select:hover,
+.toolbar-container button:hover,
+.toolbar-container input[type="text"]:hover {
+  background-color: #444;
+}
+
+/* Add hover effect to submit button */
+.toolbar-container button:hover {
+  background-color: #3e8e41;
+}
+
+/* Add hover effect to toggle button */
+.toolbar-toggle-button:hover {
+  background-color: #444;
+}
+
+/* Add hover effect to title */
+.title:hover {
+  color: lightgray;
+}
+
+/* Add hover effect to image preview */
+.image-preview-container:hover {
+  filter: brightness(80%);
+}
+
+/* Add hover effect to image preview (second image) */
+.image-preview-container:hover .image-preview1 {
+  filter: brightness(80%);
+}
