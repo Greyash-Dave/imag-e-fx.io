@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Rain</title>
+    <link rel="stylesheet" href="styleMatrix.css">
+    <style>
+        /* Toolbar container */
+        .toolbar-container {
+            position: fixed;
+            top: 0;
+            left: -500px; /* Initially hidden outside the screen */
+            width: 500px;
+            height: 100vh;
+            background-color: #222;
+            padding: 20px;
+            color: #fff;
+            transition: left 0.3s ease;
+            overflow-y: auto; /* Add scroll option */
+        }
+
+        /* Toolbar elements */
+        .toolbar-container input[type="file"],
+        .toolbar-container select,
+        .toolbar-container button,
+        .toolbar-container input[type="text"] {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Submit button */
+        .toolbar-container button {
+            background-color: #4CAF50;
+            cursor: pointer;
+        }
+
+        /* Apply some spacing */
+        .toolbar-container br {
+            line-height: 20px;
+        }
+
+
+        /* Button to toggle the toolbar */
+        .toolbar-toggle-button {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: #222;
+            color: #fff;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            cursor: pointer;
+            transition: left 0.3s ease;
+            z-index: 999; /* Ensure the button is on top of other elements */
+        }
+
+        /* Adjust the position when the toolbar is open */
+        .toolbar-container.open {
+            left: 0;
+        }
+
+        .toolbar-toggle-button.open {
+            left: 500px;
+        }
+
+        /* Add styles for the title */
+        .title {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: whitesmoke;
+        }
+
+        /* Image preview styles */
+        .image-preview-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .image-preview {
+            width: 75%;
+            height: auto;
+        }
+
+        .image-preview1 {
+            width: 75%;
+            height: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <canvas id="canvas1"></canvas>
+        <button class="toolbar-toggle-button" onclick="toggleToolbar()">&#9776;</button>
+        <div class="toolbar-container" id="toolbarContainer" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+
+            <input type="file" name="0" id="fileId" onchange="imageUploaded()">
+            <br><br>
+            <div class="image-preview-container">
+                <input type="file" accept="image/*" id="fileInput" style="display: none;">
+                <img class="image-preview" id="imagePreview" src="#" alt="Image Preview">
+            </div>
+            <br><br>
+            <input type="text" name="1" id="fileId1" onchange="imageUploaded1()">
+            <br><br>
+            <div class="image-preview-container">
+                <img class="image-preview1" id="imagePreview1" src="#" alt="Image Preview">
+            </div>
+
+            <br><br>
+
+            <select id="effects">
+                <option value="0">Effects</option>
+                <option value="1">ASCII</option>
+                <option value="2">B/W</option>
+                <option value="3">Color</option>
+                <option value="4">BG</option>
+            </select><br><br>
+
+            <button onclick="submit()">
+                Submit
+            </button>
+            <button onclick="refresh()">
+                Refresh
+            </button><br><br>
+            <button onclick="save()">
+                Save Images
+            </button>
+        </div>
+        <div class="title">IMAG-E-FX</div> <!-- Add the title element -->
+    </div>
+
+    <script src="scriptMatrix.js"></script>
+    <script>
+        function toggleToolbar() {
+            var toolbar = document.getElementById('toolbarContainer');
+            var toggleButton = document.querySelector('.toolbar-toggle-button');
+            toolbar.classList.toggle('open');
+            toggleButton.classList.toggle('open');
+        }
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+        function handleDrop(event) {
+            event.preventDefault();
+            var file = event.dataTransfer.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function () {
+                var img = new Image();
+                img.onload = function () {
+                var canvas = document.createElement('canvas');
+                var context = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                context.drawImage(img, 0, 0);
+
+                // Convert RGBA to RGB
+                var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                var data = imageData.data;
+                for (var i = 0; i < data.length; i += 4) {
+                    var alpha = data[i + 3];
+                    var red = data[i] * alpha / 255;
+                    var green = data[i + 1] * alpha / 255;
+                    var blue = data[i + 2] * alpha / 255;
+
+                    data[i] = red;
+                    data[i + 1] = green;
+                    data[i + 2] = blue;
+                }
+                canvas.addEventListener('dragover', handleDragOver);
+                canvas.addEventListener('drop', handleDrop);
+
+                context.putImageData(imageData, 0, 0);
+
+                // Convert to Base64
+                var base64data = canvas.toDataURL('image/jpeg');
+
+                // Update image preview and store Base64 data in localStorage
+                var imagePreview = document.getElementById('imagePreview');
+                imagePreview.src = base64data;
+                localStorage.setItem('base64String', base64data);
+                };
+                img.src = reader.result;
+            };
+
+            reader.readAsDataURL(file);
+            }
+
+        function refresh() {
+            localStorage.removeItem('base64String');
+            localStorage.removeItem('base64String1');
+            removeImagePreview('imagePreview');
+            removeImagePreview('imagePreview1');
+        }
+
+        // Remove image preview
+        function removeImagePreview(elementId) {
+            var imagePreview = document.getElementById(elementId);
+            imagePreview.src = '';
+        }
+        function imageUploaded() {
+            var name = document.getElementById('fileId'); 
+            var file = document.querySelector('input[type=file]')['files'][0];
+
+            var reader = new FileReader();
+            console.log("next");
+
+            reader.onload = function () {
+                var base64String = reader.result;
+                localStorage.setItem('base64String', base64String);
+                updateImagePreview('imagePreview', base64String);
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function imageUploaded1() {
+            var base64String1 = document.getElementById('fileId1').value;
+            localStorage.setItem('base64String1', base64String1);
+            updateImagePreview('imagePreview1', base64String1);
+        }
+
+        // Update image preview
+        function updateImagePreview(elementId, base64String) {
+            var imagePreview = document.getElementById(elementId);
+            imagePreview.src = base64String;
+        }
+
+        // Retrieve and update image previews on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            var base64String = localStorage.getItem('base64String');
+            var base64String1 = localStorage.getItem('base64String1');
+
+            if (base64String) {
+                updateImagePreview('imagePreview', base64String);
+            }
+
+            if (base64String1) {
+                updateImagePreview('imagePreview1', base64String1);
+            }
+        });
+
+        function save(){
+            window.location.href = 'database/index.php';
+        }
+        function submit() {
+
+            var e = document.getElementById("effects");
+            var effect = e.options[e.selectedIndex].value;
+            base64String = localStorage.getItem('base64String');
+            base64String1 = localStorage.getItem('base64String1');
+            
+            if (effect==1)
+            {
+                var name = document.getElementById('fileId');
+                base64Img = base64String;
+                localStorage.setItem('base64Img', base64Img);
+                window.location.href = 'AsciiEffect.html';
+            }
+            if (effect==2)
+            {
+                var name = document.getElementById('fileId');
+                base64Img = base64String;
+                localStorage.setItem('base64Img', base64Img);
+                window.location.href = 'BWEffect.html';
+            }
+            if (effect==3)
+            {
+                base64Img = base64String;
+                localStorage.setItem('base64Img', base64Img);
+                window.location.href = 'ColorEffect.html';
+            }
+            
+            if (effect==4)
+            {
+                base64Img = base64String;
+                localStorage.setItem('base64Img', base64Img);
+                base64Img1 = base64String1;
+                localStorage.setItem('base64Img1', base64Img1);
+                window.location.href = 'BgMotion.html';
+            }
+        }
+
+    </script>
+</body>
+</html>
